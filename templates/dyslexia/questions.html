@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f0f8ff, #dbe9ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #4a6fa5;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .option {
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(245, 245, 245, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border: 2px solid #ddd;
+        }
+
+        .option:hover {
+            background: #f0f8ff;
+            border-color: #4a6fa5;
+            transform: translateY(-3px);
+        }
+
+        button {
+            background: linear-gradient(to right, #4a6fa5, #3a5a80);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #3a5a80, #4a6fa5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #wait-button, #impulse-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+            border-radius: 50px;
+        }
+
+        #wait-button.ready, #impulse-button.ready {
+            background-color: #4CAF50 !important;
+        }
+
+        #sequence-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Level {{ level }}: {{ level_name }}</h1>
+        <p>Question {{ dquestion_num }} of {{ total_questions }}</p>
+        
+        <h2>{{ question.question }}</h2>
+        
+        {% if question.type == 'timed_wait' %}
+        <div id="wait-container">
+            <button id="wait-button">Don't Click Me Yet</button>
+            <div id="options-container" style="display: none;">
+                <form method="POST" action="/danswer">
+                    <div class="options">
+                        {% for option in question.options %}
+                        <label class="option">
+                            <input type="radio" name="answer" value="{{ option }}" required> {{ option }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const waitButton = document.getElementById('wait-button');
+            const optionsContainer = document.getElementById('options-container');
+            const waitTime = JSON.parse("{{ question.wait_time | default(0) | int }}") * 1000;
+
+            setTimeout(() => {
+                waitButton.textContent = "Click Now!";
+                waitButton.classList.add('ready');
+                waitButton.onclick = () => {
+                    optionsContainer.style.display = 'block';
+                    let perfectOption = document.querySelector('input[value="Perfect timing!"]');
+                    if (perfectOption) perfectOption.checked = true;
+                };
+            }, waitTime);
+        </script>
+
+        {% elif question.type == 'impulse_control' %}
+        <div id="impulse-container">
+            <button id="impulse-button">Wait Before Clicking</button>
+            <form method="POST" action="/danswer" id="impulse-form">
+                <input type="hidden" name="danswer" id="user-action" value="">
+            </form>
+        </div>
+
+        <script>
+            const impulseButton = document.getElementById('impulse-button');
+            const impulseWaitTime = JSON.parse("{{ question.wait_time | default(0) | int }}");
+            let timer;
+
+            function updateButton(secondsLeft) {
+                if (secondsLeft > 0) {
+                    impulseButton.textContent = `Wait ${secondsLeft}s...`;
+                    timer = setTimeout(() => updateButton(secondsLeft - 1), 1000);
+                } else {
+                    impulseButton.textContent = "Click Now!";
+                    impulseButton.classList.add('ready');
+                    impulseButton.onclick = () => {
+                        document.getElementById('user-action').value = "I waited";
+                        document.getElementById('impulse-form').submit();
+                    };
+                }
+            }
+
+            impulseButton.onclick = () => {
+                document.getElementById('user-action').value = "I pressed too soon";
+                document.getElementById('impulse-form').submit();
+            };
+
+            updateButton(impulseWaitTime);
+        </script>
+
+        {% else %}
+        {% if 'sequence' in question %}
+        <div id="sequence-display">{{ question.sequence|join(' ') }}</div>
+        <script>
+            setTimeout(() => {
+                document.getElementById('sequence-display').style.visibility = 'hidden';
+            }, JSON.parse("{{ question.display_time | default(0) | int }}") * 1000);
+        </script>
+        {% endif %}
+
+        
+        <!-- Ensure your form has the correct action -->
+<form method="POST" action="{{ url_for('dyslexia_answer') }}">
+    <!-- Your question options here -->
+    <div class="options">
+        {% for option in question.options %}
+        <label class="option">
+            <input type="radio" name="answer" value="{{ option }}" required>
+            {{ option }}
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit">Submit</button>
+</form>
+        {% endif %}
+    </div>
+</body>
+</html>

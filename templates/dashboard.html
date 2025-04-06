@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurodiversity Dashboard</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #dad0d4, #caadc0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        p {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 20px;
+            max-width: 80%;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: 0.3s ease;
+            cursor: pointer;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            background: rgba(175, 212, 232, 0.7);
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logout-btn {
+            margin-top: 30px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 20px;
+            background: #ff7675;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Additional styles for the Learning & Game section */
+        .learning-game-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .learning-game-card {
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #3b82f6;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .learning-game-card:hover {
+            background-color: #1e40af;
+        }
+         /* Increased margin to push only the text "LEARNING AND GAMING" further down */
+         h1 {
+            margin-top: 60px; /* Adjust this value as needed */
+            font-size: 32px;
+            color: #333;
+            font-weight: 600;
+        }
+
+
+    </style>
+</head>
+<body>
+    <h2>Welcome, {{ username }}!</h2>
+    <p>"Select a neurodiversity type to begin your personalized journey. Take an assessment to evaluate your abilities, receive tailored learning modules, and explore employment opportunities designed for you."</p>
+
+    <div class="container">
+        <a href="{{ url_for('adhd_page') }}">
+            <div class="card">ADHD</div>
+        </a>
+        <a href="{{ url_for('autism_page') }}">
+            <div class="card">Autism Spectrum Disorder (ASD)</div>
+        </a>
+        <a href="{{ url_for('dyslexia_page') }}">
+            <div class="card">Dyslexia</div>
+        </a>
+        <a href="{{ url_for('dyspraxia_page') }}">
+            <div class="card">Dyspraxia</div>
+        </a>
+        <a href="{{ url_for('dyscalculia_page') }}">
+            <div class="card">Dyscalculia</div>
+        </a>
+        <a href="{{ url_for('tourette_page') }}">
+            <div class="card">Tourette Syndrome</div>
+        </a>
+    </div>
+
+    <!-- Learning & Game Section -->
+    <h1>LEARNING AND GAMING</h1>
+    <div class="learning-game-container">
+        <div class="learning-game-card" onclick="window.location.href='/index.html'">Learning</div>
+        <div class="learning-game-card" onclick="window.location.href='/game.html'">Game</div>
+    </div>
+
+    <a href="{{ url_for('logout') }}">
+        <button class="logout-btn">Logout</button>
+    </a>
+</body>
+</html>

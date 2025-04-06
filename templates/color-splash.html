@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Splash Art 🎨🖌️</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a0dad, #8e44ad);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        #canvasArea {
+            width: 80%;
+            height: 500px;
+            background-color: #fff;
+            margin: 0 auto;
+            border: 3px solid #333;
+            position: relative;
+        }
+
+        .color-palette {
+            margin-top: 20px;
+        }
+
+        .color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .color:hover {
+            opacity: 0.8;
+        }
+
+        .color-btn {
+            background-color: #FF5733;
+        }
+
+        .color-btn2 {
+            background-color: #33FF57;
+        }
+
+        .color-btn3 {
+            background-color: #3357FF;
+        }
+
+        .color-btn4 {
+            background-color: #FF33A1;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin-top: 30px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Color Splash Art 🎨🖌️</h1>
+    <div id="canvasArea"></div>
+
+    <div class="color-palette">
+        <div class="color color-btn" onclick="setColor('#FF5733')"></div>
+        <div class="color color-btn2" onclick="setColor('#33FF57')"></div>
+        <div class="color color-btn3" onclick="setColor('#3357FF')"></div>
+        <div class="color color-btn4" onclick="setColor('#FF33A1')"></div>
+    </div>
+
+    <button onclick="clearCanvas()">Clear Canvas</button>
+
+    <script>
+        let currentColor = '#FF5733';  // Default color
+        let isDrawing = false;
+
+        // Get the canvas area
+        const canvas = document.getElementById('canvasArea');
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        function setColor(color) {
+            currentColor = color;
+        }
+
+        function startDrawing(event) {
+            isDrawing = true;
+            draw(event); // Draw immediately
+        }
+
+        function draw(event) {
+            if (!isDrawing) return;
+
+            const x = event.offsetX;
+            const y = event.offsetY;
+
+            const dot = document.createElement('div');
+            dot.style.position = 'absolute';
+            dot.style.width = '10px';
+            dot.style.height = '10px';
+            dot.style.backgroundColor = currentColor;
+            dot.style.borderRadius = '50%';
+            dot.style.left = `${x - 5}px`;
+            dot.style.top = `${y - 5}px`;
+
+            canvas.appendChild(dot);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            canvas.innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>

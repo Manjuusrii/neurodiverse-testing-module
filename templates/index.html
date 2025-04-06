@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Modules</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e1f8fa;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .module {
+            width: 250px;
+            height: 150px;
+            background: white;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .module:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>Learning Modules</h1>
+    <div class="container">
+        <script>
+            for (let i = 1; i <= 12; i++) {
+                let moduleDiv = document.createElement('div');
+                moduleDiv.className = 'module';
+                moduleDiv.innerText = 'Module ' + i;
+                moduleDiv.onclick = function() {
+                    window.location.href = 'module' + i + '.html';
+                };
+                document.querySelector('.container').appendChild(moduleDiv);
+            }
+        </script>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Challenge ⚡🏆</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #ffcc00, #ff6600);
+            padding: 20px;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #fff;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .reaction-button {
+            font-size: 24px;
+            padding: 20px 40px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: scale(1);
+        }
+
+        .reaction-button:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+        }
+
+        .reaction-time {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-message {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .reaction-button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reaction Time Challenge ⚡🏆</h1>
+    <button class="reaction-button" id="reactionButton" onclick="startGame()">Start</button>
+    <div class="reaction-time" id="reactionTime"></div>
+    <div class="start-message" id="startMessage">Click the button as soon as it changes color!</div>
+
+    <script>
+        let startButton = document.getElementById('reactionButton');
+        let reactionTimeDisplay = document.getElementById('reactionTime');
+        let startMessage = document.getElementById('startMessage');
+        let startTime, endTime;
+
+        function startGame() {
+            // Reset the reaction time display and button state
+            reactionTimeDisplay.innerHTML = '';
+            startButton.disabled = true;
+            startMessage.innerHTML = 'Wait for the color change...';
+
+            // Random delay (between 2 to 5 seconds)
+            let delay = Math.floor(Math.random() * 3000) + 2000;
+
+            // Set a timeout to change the button color after a random delay
+            setTimeout(() => {
+                startButton.style.backgroundColor = getRandomColor();
+                startButton.disabled = false;
+                startTime = new Date().getTime(); // Record start time when color changes
+            }, delay);
+        }
+
+        function getRandomColor() {
+            // Generate a random color
+            let letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        startButton.addEventListener('click', function() {
+            // Measure the reaction time when the player clicks the button
+            endTime = new Date().getTime();
+            let reactionTime = endTime - startTime;
+            reactionTimeDisplay.innerHTML = `Your reaction time is: ${reactionTime} ms`;
+
+            // After showing the reaction time, reset the button for next game
+            setTimeout(() => {
+                startButton.style.backgroundColor = '#4CAF50';
+                startButton.disabled = true;
+                startMessage.innerHTML = 'Click the button as soon as it changes color!';
+            }, 2000); // Wait for 2 seconds before allowing the next click
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Learning Game</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #ADD8E6; }
+        .container { width: 100%; max-width: 600px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 20px auto; width: 100%; }
+        .number { padding: 30px; background: #66ccff; border-radius: 0; font-size: 24px; cursor: pointer; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: transform 0.2s; }
+        .number:hover { background: #3399ff; transform: scale(1.1); }
+        .controls { margin-top: 20px; }
+        button { padding: 12px 24px; font-size: 18px; margin: 5px; border: none; border-radius: 10px; background: #ffcc00; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: background 0.2s; }
+        button:hover { background: #ff9900; }
+        .test { display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Fun Number Learning 🎶</h1>
+        <p>🚀 Let's explore numbers together! Click a number to hear it. 📢</p>
+        <div class="number-grid" id="numberGrid"></div>
+        <div class="test" id="testSection">
+            <p id="testQuestion"></p>
+            <div id="testOptions"></div>
+        </div>
+        <div class="controls">
+            <button onclick="prevPage()" id="prevBtn">⏪ Previous</button>
+            <button onclick="startTest()" id="testBtn">🎯 Take Test</button>
+            <button onclick="nextPage()" id="nextBtn" style="display: none;">⏩ Next</button>
+            <button onclick="finalTest()" id="finalTestBtn" style="display: none;">🏆 Final Test</button>
+        </div>
+    </div>
+    <script>
+        let page = 0;
+        const numbersPerPage = 10;
+        const totalNumbers = 100;
+        const numberGrid = document.getElementById("numberGrid");
+        const testSection = document.getElementById("testSection");
+        const testQuestion = document.getElementById("testQuestion");
+        const testOptions = document.getElementById("testOptions");
+        const testBtn = document.getElementById("testBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const finalTestBtn = document.getElementById("finalTestBtn");
+        let learnedNumbers = [];
+        let testCount = 0;
+        const maxTestQuestions = 3;
+
+        function playNumberSound(number) {
+            const speech = new SpeechSynthesisUtterance(number);
+            speech.rate = 0.8;
+            speechSynthesis.speak(speech);
+        }
+
+        function renderNumbers() {
+            numberGrid.innerHTML = "";
+            testSection.style.display = "none";
+            learnedNumbers = [];
+            testCount = 0;
+            testBtn.style.display = "block";
+            nextBtn.style.display = "none";
+            finalTestBtn.style.display = page === 9 ? "block" : "none";
+            for (let i = page * numbersPerPage + 1; i <= (page + 1) * numbersPerPage && i <= totalNumbers; i++) {
+                learnedNumbers.push(i);
+                const numDiv = document.createElement("div");
+                numDiv.className = "number";
+                numDiv.textContent = i;
+                numDiv.onclick = () => playNumberSound(i);
+                numberGrid.appendChild(numDiv);
+            }
+            document.getElementById("prevBtn").disabled = page === 0;
+        }
+
+        function startTest() {
+            testBtn.style.display = "none";
+            showTest();
+        }
+
+        function showTest() {
+            if (testCount >= maxTestQuestions) {
+                nextBtn.style.display = "block";
+                return;
+            }
+            numberGrid.innerHTML = "";
+            testSection.style.display = "block";
+            const correctAnswer = learnedNumbers[Math.floor(Math.random() * learnedNumbers.length)];
+            testQuestion.textContent = "What number is this?";
+            playNumberSound(correctAnswer);
+            testOptions.innerHTML = "";
+            
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let randomOption = Math.floor(Math.random() * totalNumbers) + 1;
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.style.background = "#66ccff";
+                button.style.color = "white";
+                button.onclick = () => checkAnswer(option === correctAnswer);
+                testOptions.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                testCount++;
+                if (testCount < maxTestQuestions) {
+                    showTest();
+                } else {
+                    alert("🎉 Great job! Moving to the next set.");
+                    nextBtn.style.display = "block";
+                }
+            } else {
+                alert("❌ Oops! Let's review the numbers again.");
+                renderNumbers();
+            }
+        }
+
+        function prevPage() {
+            if (page > 0) {
+                page--;
+                renderNumbers();
+            }
+        }
+
+        function nextPage() {
+            if (page < Math.floor(totalNumbers / numbersPerPage)) {
+                page++;
+                renderNumbers();
+            }
+        }
+
+        function finalTest() {
+            alert("🏆 Now let's test all the numbers!");
+            page = 0;
+            renderNumbers();
+        }
+
+        renderNumbers();
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhyme Video Player</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 20px; background: #ADD8E6; }
+        .container { max-width: 800px; margin: auto; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .video { display: none; }
+        video { width: 100%; border-radius: 10px; }
+        button { padding: 10px 20px; font-size: 18px; margin-top: 10px; border: none; border-radius: 10px; background: #ffcc00; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+        button:hover { background: #ff9900; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎶 Fun Rhymes for Kids 🎵</h1>
+        
+        <div class="video" id="video1-container">
+            <h2>Rhyme 1</h2>
+            <video id="video1" src="static//videos/rhyme1.mp4" controls></video>
+        </div>
+        
+        <div class="video" id="video2-container">
+            <h2>Rhyme 2</h2>
+            <video id="video2" src="static/videos/rhyme2.mp4" controls></video>
+        </div>
+        
+        <div class="video" id="video3-container">
+            <h2>Rhyme 3</h2>
+            <video id="video3" src="static/videos/rhyme3.mp4" controls></video>
+        </div>
+        
+        <button id="nextButton" onclick="showNextVideo()">Next</button>
+    </div>
+
+    <script>
+        let currentVideo = 1;
+        document.getElementById("video1-container").style.display = "block";
+
+        function showNextVideo() {
+            document.getElementById(`video${currentVideo}-container`).style.display = "none";
+            currentVideo++;
+            if (currentVideo <= 3) {
+                document.getElementById(`video${currentVideo}-container`).style.display = "block";
+            } else {
+                document.getElementById("nextButton").style.display = "none"; // Hide button after last video
+                alert("🎉 All rhymes completed! 🎶");
+            }
+        }
+    </script>
+</body>
+</html>

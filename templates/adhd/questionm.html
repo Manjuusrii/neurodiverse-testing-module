@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD Question</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f0f8ff, #dbe9ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #4a6fa5;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .option {
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(245, 245, 245, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border: 2px solid #ddd;
+        }
+
+        .option:hover {
+            background: #f0f8ff;
+            border-color: #4a6fa5;
+            transform: translateY(-3px);
+        }
+
+        button {
+            background: linear-gradient(to right, #4a6fa5, #3a5a80);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #3a5a80, #4a6fa5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #wait-button, #impulse-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+            border-radius: 50px;
+        }
+
+        #wait-button.ready, #impulse-button.ready {
+            background-color: #4CAF50 !important;
+        }
+
+        #sequence-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Level {{ level }}: {{ level_name }}</h1>
+        <p>Question {{ question_num }} of {{ total_questions }}</p>
+        
+        <h2>{{ question.question }}</h2>
+        
+        {% if question.type == 'timed_wait' %}
+        <div id="wait-container">
+            <button id="wait-button">Don't Click Me Yet</button>
+            <div id="options-container" style="display: none;">
+                <form method="POST" action="{{ url_for('submit_adhd_answer') }}">
+                    <div class="options">
+                        {% for option in question.options %}
+                        <label class="option">
+                            <input type="radio" name="answer" value="{{ option }}" required> {{ option }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const waitButton = document.getElementById('wait-button');
+                const optionsContainer = document.getElementById('options-container');
+                let waitTime = 5;
+                
+                try {
+                    waitTime = JSON.parse('{{ question.wait_time | tojson | safe }}') || 5;
+                } catch (e) {
+                    console.error('Error parsing wait time:', e);
+                }
+
+                if (waitButton && optionsContainer) {
+                    setTimeout(() => {
+                        waitButton.textContent = "Click Now!";
+                        waitButton.classList.add('ready');
+                        waitButton.onclick = () => {
+                            optionsContainer.style.display = 'block';
+                            const perfectTimingOption = document.querySelector('input[value="Perfect timing!"]');
+                            if (perfectTimingOption) {
+                                perfectTimingOption.checked = true;
+                            }
+                        };
+                    }, waitTime * 1000);
+                }
+            });
+        </script>
+
+        {% elif question.type == 'impulse_control' %}
+        <div id="impulse-container">
+            <button id="impulse-button">Wait Before Clicking</button>
+            <form method="POST" action="{{ url_for('submit_adhd_answer') }}" id="impulse-form">
+                <input type="hidden" name="answer" id="user-action" value="">
+            </form>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const impulseButton = document.getElementById('impulse-button');
+                const impulseForm = document.getElementById('impulse-form');
+                let waitTime = 5;
+                let timer;
+
+                try {
+                    waitTime = JSON.parse('{{ question.wait_time | tojson | safe }}') || 5;
+                } catch (e) {
+                    console.error('Error parsing wait time:', e);
+                }
+
+                if (impulseButton && impulseForm) {
+                    function updateButton(secondsLeft) {
+                        if (secondsLeft > 0) {
+                            impulseButton.textContent = `Wait ${secondsLeft}s...`;
+                            timer = setTimeout(() => updateButton(secondsLeft - 1), 1000);
+                        } else {
+                            impulseButton.textContent = "Click Now!";
+                            impulseButton.classList.add('ready');
+                            impulseButton.onclick = () => {
+                                document.getElementById('user-action').value = "I waited";
+                                impulseForm.submit();
+                            };
+                        }
+                    }
+
+                    impulseButton.onclick = () => {
+                        document.getElementById('user-action').value = "I pressed too soon";
+                        impulseForm.submit();
+                    };
+
+                    updateButton(waitTime);
+                }
+            });
+        </script>
+
+        {% else %}
+        {% if question.sequence is defined %}
+        <div id="sequence-display">{{ question.sequence|join(' ') }}</div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sequenceDisplay = document.getElementById('sequence-display');
+                let displayTime = 3000;
+                
+                try {
+                    displayTime = JSON.parse('{{ question.display_time | tojson | safe }}') * 1000 || 3000;
+                } catch (e) {
+                    console.error('Error parsing display time:', e);
+                }
+
+                if (sequenceDisplay) {
+                    setTimeout(() => {
+                        sequenceDisplay.style.visibility = 'hidden';
+                    }, displayTime);
+                }
+            });
+        </script>
+        {% endif %}
+
+       <!-- Change all form actions to explicitly use the ADHD route -->
+<form method="POST" action="{{ url_for('submit_adhd_answer') }}">
+            <div class="options">
+                {% for option in question.options %}
+                <label class="option">
+                    <input type="radio" name="answer" value="{{ option }}" required> 
+                    {{ option }}
+                </label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn-submit">Submit Answer</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <script>
+        // Debugging helper
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Question data:', JSON.parse('{{ question | tojson | safe }}'));
+            console.log('Level:', JSON.parse('{{ level | tojson | safe }}'));
+        });
+        
+    </script>
+</body>
+
+</html>

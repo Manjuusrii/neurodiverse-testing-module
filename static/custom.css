@@ -1,0 +1,77 @@
+/* Accessibility improvements */
+body {
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Better focus states for accessibility */
+:focus {
+    outline: 3px solid #4a6fa5;
+    outline-offset: 2px;
+}
+
+/* Dyslexia-friendly font option */
+.dyslexia-mode {
+    font-family: "OpenDyslexic", sans-serif;
+}
+
+/* High contrast mode */
+.high-contrast {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+.high-contrast .card {
+    background-color: #000 !important;
+    color: #fff !important;
+    border: 2px solid #fff !important;
+}
+
+/* Animation control */
+.no-animation * {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Game cards */
+.game-card {
+    transition: transform 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Custom checkbox styling for better visibility */
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+/* Progress indicators */
+.progress-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.progress-step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.progress-step.active .step-number {
+    background-color: #4a6fa5;
+    color: white;
+}
+
+.step-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    margin-bottom: 0.5rem;
+}

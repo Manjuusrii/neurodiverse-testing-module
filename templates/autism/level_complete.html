@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Level {{ level }} Complete</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #4a6fa5;
+            margin: 0;
+        }
+        .score-display {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #4a6fa5;
+            font-weight: bold;
+        }
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .progress-ring-circle {
+            stroke: #4a6fa5;
+            fill: transparent;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a6fa5;
+        }
+        .question-review {
+            margin: 30px 0;
+        }
+        .question-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .correct {
+            border-left: 5px solid #4CAF50;
+        }
+        .incorrect {
+            border-left: 5px solid #F44336;
+        }
+        .answer-status {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .correct .answer-status {
+            color: #4CAF50;
+        }
+        .incorrect .answer-status {
+            color: #F44336;
+        }
+        .next-btn {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+        }
+        .next-btn:hover {
+            background-color: #3a5a80;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Level {{ level }} Complete!</h1>
+            <div class="score-display">
+                You scored {{ score }} out of {{ total_questions }}
+            </div>
+        </div>
+        
+        <div class="question-review">
+            <h2>Question Review:</h2>
+            {% for answer in answers %}
+            <div class="question-item {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
+                <p><strong>Question:</strong> {{ answer.question }}</p>
+                <p>Your answer: {{ answer.user_answer }}</p>
+                <p>Correct answer: {{ answer.correct_answer }}</p>
+                <p class="answer-status">{% if answer.is_correct %}✓ Correct{% else %}✗ Incorrect{% endif %}</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if level < 3 %}
+        <form method="POST" action="/next_level">
+            <button type="submit" class="next-btn">Continue to Level {{ level + 1 }} →</button>
+        </form>
+        {% else %}
+        <form method="POST" action="/next_level">
+            <button type="submit" class="next-btn">View Final Results →</button>
+        </form>
+        {% endif %}
+    </div>
+</body>
+</html>

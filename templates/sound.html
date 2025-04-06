@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Match Game 🎵</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #4b0082;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .card {
+            height: 100px;
+            background-color: #9370db;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .card:hover {
+            background-color: #8a2be2;
+            transform: scale(1.05);
+        }
+        .card.matched {
+            visibility: hidden;
+        }
+        .sound-card {
+            font-size: 24px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4b0082;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #6a0dad;
+        }
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background-color: #e6e6fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        #testSoundBtn {
+            background-color: #ff6b6b;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Sound Match Game 🎵</h1>
+        <p>Match the text labels with their corresponding sounds!</p>
+        
+        <div class="game-info">
+            <div class="info-box">Time: <span id="time">60</span>s</div>
+            <div class="info-box">Score: <span id="score">0</span></div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">Start Game</button>
+            <button id="resetBtn">Reset</button>
+            <button id="testSoundBtn">Test Sound</button>
+        </div>
+        
+        <div id="message" style="min-height: 30px; margin: 15px 0;"></div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- Cards will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // Using free online sound URLs
+        const items = [
+            { text: 'Dog', sound: 'https://www.soundjay.com/mechanical/sounds/dog-bark-01.mp3' },
+            { text: 'Cat', sound: 'https://www.soundjay.com/mechanical/sounds/cat-meow-01.mp3' },
+            { text: 'Cow', sound: 'https://www.soundjay.com/mechanical/sounds/cow-moo-01.mp3' },
+            { text: 'Bird', sound: 'https://www.soundjay.com/nature/sounds/bird-whistle-01.mp3' },
+            { text: 'Car', sound: 'https://www.soundjay.com/vehicles/sounds/car-starting-01.mp3' },
+            { text: 'Siren', sound: 'https://www.soundjay.com/mechanical/sounds/siren-01.mp3' }
+        ];
+        
+        let gameCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+        let gameActive = false;
+        let audioElements = {};
+        
+        const gameBoard = document.getElementById('gameBoard');
+        const messageDisplay = document.getElementById('message');
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const testSoundBtn = document.getElementById('testSoundBtn');
+        
+        // Preload all audio files
+        function preloadSounds() {
+            items.forEach(item => {
+                audioElements[item.sound] = new Audio(item.sound);
+                audioElements[item.sound].preload = 'auto';
+            });
+        }
+        
+        function initGame() {
+            // Create pairs of cards (text and sound for each item)
+            gameCards = [];
+            items.forEach(item => {
+                gameCards.push({
+                    type: 'text',
+                    content: item.text,
+                    match: item.sound
+                });
+                gameCards.push({
+                    type: 'sound',
+                    content: item.sound,
+                    match: item.text
+                });
+            });
+            
+            // Shuffle the cards
+            gameCards.sort(() => Math.random() - 0.5);
+            
+            // Clear the board
+            gameBoard.innerHTML = '';
+            
+            // Create game cards
+            gameCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `card ${card.type === 'sound' ? 'sound-card' : ''}`;
+                cardElement.dataset.index = index;
+                
+                if (card.type === 'text') {
+                    cardElement.textContent = card.content;
+                } else {
+                    cardElement.textContent = '🔊';
+                }
+                
+                cardElement.addEventListener('click', flipCard);
+                gameBoard.appendChild(cardElement);
+            });
+            
+            matchedPairs = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            messageDisplay.textContent = '';
+            gameActive = true;
+        }
+        
+        function flipCard() {
+            if (!gameActive || this.classList.contains('matched')) return;
+            
+            const selectedIndex = this.dataset.index;
+            const selectedCard = gameCards[selectedIndex];
+            
+            if (flippedCards.length >= 2) return;
+            
+            if (selectedCard.type === 'sound') {
+                playSound(selectedCard.content);
+            }
+            
+            flippedCards.push({
+                index: selectedIndex,
+                element: this,
+                card: selectedCard
+            });
+            
+            if (flippedCards.length === 2) {
+                setTimeout(checkForMatch, 800);
+            }
+        }
+        
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if ((card1.card.type !== card2.card.type) && 
+                ((card1.card.match === card2.card.content) || 
+                 (card2.card.match === card1.card.content))) {
+                // Match found
+                card1.element.classList.add('matched');
+                card2.element.classList.add('matched');
+                matchedPairs++;
+                score += 10;
+                scoreDisplay.textContent = score;
+                messageDisplay.textContent = 'Correct Match! 🎉';
+                
+                if (matchedPairs === items.length) {
+                    gameActive = false;
+                    clearInterval(timer);
+                    messageDisplay.textContent = 'You won! All matches found! 🏆';
+                }
+            } else {
+                messageDisplay.textContent = 'No match, try again!';
+            }
+            
+            flippedCards = [];
+        }
+        
+        function playSound(soundUrl) {
+            try {
+                // Use preloaded audio if available
+                if (audioElements[soundUrl]) {
+                    audioElements[soundUrl].currentTime = 0; // Rewind to start
+                    audioElements[soundUrl].play().catch(e => {
+                        console.error("Playback failed:", e);
+                        messageDisplay.textContent = "Click the sound card again to play";
+                    });
+                } else {
+                    // Fallback to creating new audio element
+                    const audio = new Audio(soundUrl);
+                    audio.play().catch(e => {
+                        console.error("Playback failed:", e);
+                        messageDisplay.textContent = "Sound error: Please allow audio in your browser";
+                    });
+                }
+            } catch (e) {
+                console.error("Audio error:", e);
+                messageDisplay.textContent = "Sound system error";
+            }
+        }
+        
+        function startGame() {
+            preloadSounds();
+            initGame();
+            startTimer();
+        }
+        
+        function startTimer() {
+            timeLeft = 60;
+            timeDisplay.textContent = timeLeft;
+            clearInterval(timer);
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameActive = false;
+                    messageDisplay.textContent = 'Time\'s up! Game over!';
+                }
+            }, 1000);
+        }
+        
+        function resetGame() {
+            clearInterval(timer);
+            gameActive = false;
+            timeLeft = 60;
+            timeDisplay.textContent = timeLeft;
+            score = 0;
+            scoreDisplay.textContent = score;
+            messageDisplay.textContent = '';
+            gameBoard.innerHTML = '';
+        }
+        
+        function testSound() {
+            if (items.length > 0) {
+                playSound(items[0].sound);
+                messageDisplay.textContent = "You should hear a dog bark. If not, check your browser's sound settings.";
+            }
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        testSoundBtn.addEventListener('click', testSound);
+    </script>
+</body>
+</html>

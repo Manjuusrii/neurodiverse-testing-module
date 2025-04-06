@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Learning</title>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif;
+            text-align: center; 
+            background-color: #E0F7FA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #color-container, #quiz-container, #completion-container { 
+            display: none; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            color: #333;
+            font-weight: bold;
+            width: 50%;
+        }
+        .color-box { 
+            width: 250px; 
+            height: 250px; 
+            cursor: pointer; 
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+        button { 
+            margin-top: 20px; 
+            padding: 15px 25px; 
+            font-size: 18px;
+            background-color: #008CBA; 
+            color: white; 
+            border: none; 
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover { 
+            background-color: #007BB5;
+        }
+        .quiz-option {
+            background-color: white;
+            color: black;
+            padding: 15px 20px;
+            margin: 10px;
+            font-size: 18px;
+            border: 2px solid #333;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .quiz-option:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌈 Color Learning 🌈</h1>
+    <div id="color-container">
+        <h2 id="color-title"></h2>
+        <div id="color-box" class="color-box" onclick="speakColor()"></div>
+        <button onclick="nextColor()">Next</button>
+    </div>
+    
+    <div id="quiz-container">
+        <h2>Quiz: Identify the Color</h2>
+        <div id="quiz-box" class="color-box"></div>
+        <div id="options"></div>
+        <button onclick="generateQuiz()">Next Question</button>
+    </div>
+
+    <div id="completion-container">
+        <h2 style="color: #008000;">🎉 Congratulations! You have successfully completed the module! 🎉</h2>
+    </div>
+
+    <script>
+        const colors = [
+            { name: "Red", code: "#FF0000" },
+            { name: "Blue", code: "#0000FF" },
+            { name: "Green", code: "#008000" },
+            { name: "Yellow", code: "#FFFF00" },
+            { name: "Orange", code: "#FFA500" },
+            { name: "Purple", code: "#800080" }
+        ];
+
+        let currentColor = 0;
+        let quizCount = 0;
+        let askedQuestions = [];
+
+        function startModule() {
+            document.getElementById("color-container").style.display = "block";
+            showColor();
+        }
+
+        function showColor() {
+            const color = colors[currentColor];
+            document.getElementById("color-title").innerText = color.name;
+            document.getElementById("color-box").style.backgroundColor = color.code;
+            speakColor();
+        }
+
+        function speakColor() {
+            const color = colors[currentColor].name;
+            const speech = new SpeechSynthesisUtterance(color);
+            window.speechSynthesis.speak(speech);
+        }
+
+        function nextColor() {
+            currentColor++;
+            if (currentColor < colors.length) {
+                showColor();
+            } else {
+                startQuiz();
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById("color-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            quizCount = 0;
+            askedQuestions = [];
+            generateQuiz();
+        }
+
+        function generateQuiz() {
+            if (quizCount >= 3) {
+                document.getElementById("quiz-container").style.display = "none";
+                document.getElementById("completion-container").style.display = "block";
+                return;
+            }
+            let availableColors = colors.filter(c => !askedQuestions.includes(c.name));
+            if (availableColors.length === 0) availableColors = [...colors];
+            let quizColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+            askedQuestions.push(quizColor.name);
+            document.getElementById("quiz-box").style.backgroundColor = quizColor.code;
+            generateOptions(quizColor);
+            quizCount++;
+        }
+
+        function generateOptions(correctColor) {
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            let options = colors.map(c => c.name).sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                let button = document.createElement("button");
+                button.innerText = option;
+                button.className = "quiz-option";
+                button.onclick = () => checkAnswer(option, correctColor);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correctColor) {
+            if (selected === correctColor.name) {
+                generateQuiz();
+            } else {
+                alert("Incorrect answer. Redirecting to the learning module.");
+                document.getElementById("quiz-container").style.display = "none";
+                document.getElementById("color-container").style.display = "block";
+                currentColor = 0;
+                showColor();
+            }
+        }
+
+        startModule();
+    </script>
+</body>
+</html>

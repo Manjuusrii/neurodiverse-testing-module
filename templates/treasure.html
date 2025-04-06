@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Hunt Adventure 🏴‍☠️💎</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-color: #2c8c99;
+            margin: 20px auto;
+            border: 2px solid #333;
+        }
+
+        .treasure {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: gold;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .clue-message {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .level-indicator {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Treasure Hunt Adventure 🏴‍☠️💎</h1>
+    <div class="level-indicator" id="levelIndicator">Level: 1</div>
+    <div class="game-container" id="gameContainer">
+        <!-- The treasure will be dynamically added here -->
+    </div>
+    <div class="clue-message" id="clueMessage">Find the treasure!</div>
+    <button class="button" id="startNewGame" onclick="startNewGame()">Start New Game</button>
+
+    <script>
+        let level = 1;
+        let treasureX, treasureY;
+        let attemptsLeft = 3;
+        let treasureSize = 30; // initial size of treasure
+        let gameOver = false;
+
+        function startNewGame() {
+            if (gameOver) {
+                level = 1;
+                attemptsLeft = 3;
+                treasureSize = 30; // Reset treasure size
+                document.getElementById("levelIndicator").innerText = `Level: ${level}`;
+                document.getElementById("clueMessage").innerText = 'Find the treasure!';
+                gameOver = false;
+            }
+            
+            // Reset the game area
+            const gameContainer = document.getElementById("gameContainer");
+            gameContainer.innerHTML = '';
+            gameContainer.addEventListener("click", handleClick);
+
+            // Generate random treasure position
+            treasureX = Math.floor(Math.random() * 370); // random x position
+            treasureY = Math.floor(Math.random() * 370); // random y position
+
+            // Add treasure to the game area
+            const treasure = document.createElement("div");
+            treasure.classList.add("treasure");
+            treasure.style.left = `${treasureX}px`;
+            treasure.style.top = `${treasureY}px`;
+            gameContainer.appendChild(treasure);
+
+            // Reset attempts for new level
+            attemptsLeft = 3;
+        }
+
+        function handleClick(event) {
+            if (gameOver) return;
+
+            const mouseX = event.offsetX;
+            const mouseY = event.offsetY;
+
+            const distance = Math.sqrt(Math.pow(mouseX - treasureX, 2) + Math.pow(mouseY - treasureY, 2));
+
+            // Check if the player clicked near the treasure
+            if (distance < treasureSize) {
+                document.getElementById("clueMessage").innerText = `🎉 You found the treasure on Level ${level}!`;
+                level++;
+                if (level <= 10) {
+                    document.getElementById("levelIndicator").innerText = `Level: ${level}`;
+                    setTimeout(startNewGame, 2000); // Start next level after 2 seconds
+                } else {
+                    document.getElementById("clueMessage").innerText = '🏆 You completed all levels! Restarting the game.';
+                    setTimeout(startNewGame, 2000); // Restart after 2 seconds
+                }
+            } else {
+                attemptsLeft--;
+                if (attemptsLeft <= 0) {
+                    document.getElementById("clueMessage").innerText = `💔 You ran out of attempts! The treasure was at (${treasureX}, ${treasureY}).`;
+                    gameOver = true;
+                    setTimeout(startNewGame, 2000);
+                } else {
+                    // Provide a clue to the player
+                    if (distance < 100) {
+                        document.getElementById("clueMessage").innerText = '🔍 Getting warmer!';
+                    } else {
+                        document.getElementById("clueMessage").innerText = '🧊 Getting colder!';
+                    }
+                }
+            }
+        }
+
+        // Start the game when the page loads
+        window.onload = startNewGame;
+    </script>
+
+</body>
+</html>

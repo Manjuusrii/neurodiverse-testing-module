@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f0f8ff, #dbe9ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #4a6fa5;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .feedback {
+            background: rgba(245, 245, 245, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: linear-gradient(to right, #4a6fa5, #3a5a80);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #3a5a80, #4a6fa5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Assessment Complete 🎉</h1>
+        
+        <div class="score">
+            Your Score: {{ total_score }} / {{ max_possible }} ({{ "%.0f"|format(percentage) }}%)
+        </div>
+        
+        <div class="feedback">
+            <h2>Feedback</h2>
+            <p>{{ feedback }}</p>
+        </div>
+        
+        <a href="{{ url_for('dashboard') }}">
+            <button>Start Over</button>
+        </a>
+        </div>
+</body>
+</html>

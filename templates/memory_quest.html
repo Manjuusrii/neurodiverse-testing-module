@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Quest 🧠✨</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #6a0dad; /* Purple Background */
+            padding: 20px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: white;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #f8d210;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 120px);
+            grid-gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 120px;
+            height: 120px;
+            background-color: #ffcc00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: black;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .card.flipped {
+            background-color: #ff5733;
+            transform: rotateY(180deg);
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        #message-container {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #f8d210;
+            display: none;
+        }
+
+        #button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #nextLevelBtn {
+            display: none;
+            padding: 12px 24px;
+            font-size: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #nextLevelBtn:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Memory Quest 🧠✨</h1>
+    <h2 id="levelIndicator">Level: 1</h2>
+    <div class="game-container" id="gameBoard"></div>
+    
+    <div id="message-container">🎉 Congratulations! You completed this level! 🎉</div>
+
+    <div id="button-container">
+        <button id="nextLevelBtn" onclick="nextLevel()">🎉 Move to Next Level</button>
+    </div>
+
+    <script>
+        let level = 1;
+        let matchedPairs = 0;
+        let symbols = ['🍎', '🍌', '🍒', '🍇', '🍉', '🍍', '🥝', '🍓'];
+        let shuffledSymbols = [];
+
+        function startGame() {
+            matchedPairs = 0;
+            document.getElementById("levelIndicator").innerText = `Level: ${level}`;
+            document.getElementById("nextLevelBtn").style.display = "none"; // Hide next level button
+            document.getElementById("message-container").style.display = "none"; // Hide congratulations message
+            generateBoard();
+        }
+
+        function generateBoard() {
+            let gameBoard = document.getElementById("gameBoard");
+            gameBoard.innerHTML = "";
+
+            let numPairs = level + 2;
+            shuffledSymbols = [...symbols.slice(0, numPairs), ...symbols.slice(0, numPairs)];
+            shuffledSymbols.sort(() => 0.5 - Math.random());
+
+            shuffledSymbols.forEach((symbol, index) => {
+                let card = document.createElement("div");
+                card.classList.add("card");
+                card.dataset.symbol = symbol;
+                card.dataset.index = index;
+                card.addEventListener("click", flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        let selectedCards = [];
+
+        function flipCard() {
+            if (selectedCards.length < 2 && !this.classList.contains("flipped")) {
+                this.innerText = this.dataset.symbol;
+                this.classList.add("flipped");
+                selectedCards.push(this);
+            }
+
+            if (selectedCards.length === 2) {
+                setTimeout(checkMatch, 500);
+            }
+        }
+
+        function checkMatch() {
+            if (selectedCards[0].dataset.symbol === selectedCards[1].dataset.symbol) {
+                selectedCards[0].classList.add("hidden");
+                selectedCards[1].classList.add("hidden");
+                matchedPairs++;
+
+                if (matchedPairs === shuffledSymbols.length / 2) {
+                    setTimeout(() => showNextLevelButton(), 300);
+                }
+            } else {
+                selectedCards[0].innerText = "";
+                selectedCards[1].innerText = "";
+                selectedCards[0].classList.remove("flipped");
+                selectedCards[1].classList.remove("flipped");
+            }
+            selectedCards = [];
+        }
+
+        function showNextLevelButton() {
+            document.getElementById("message-container").style.display = "block"; // Show congratulations message
+            document.getElementById("nextLevelBtn").style.display = "block"; // Show button
+        }
+
+        function nextLevel() {
+            level++;
+            if (level > 10) {
+                level = 1; // Restart game after level 10
+            }
+            startGame();
+        }
+
+        document.addEventListener("DOMContentLoaded", startGame);
+    </script>
+</body>
+</html>

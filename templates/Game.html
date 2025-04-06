@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <style>
+        body {
+            background-color: rgb(247, 198, 247);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            font-size: 32px;
+            margin: 20px 0;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        .game-card {
+            background: white;
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            font-size: 18px; 
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Games</h1>
+    <div class="game-container">
+        <div class="game-card" data-link="emoji_quest.html">Emoji Quest 😊🔍</div>
+        <div class="game-card" data-link="sound.html">Sound Explorer 🎵🔊</div>
+        <div class="game-card" data-link="reactiontime.html">Reaction Time Challenge ⚡🏆</div>
+        <div class="game-card" data-link="treasure.html">Treasure Hunt Adventure 🏴‍☠️💎</div>
+        <div class="game-card" data-link="color-splash.html">Color Splash Art 🎨🖌️</div>
+        <div class="game-card" data-link="bubble.html">Bubble Pop Challenge 🫧🎯</div>
+        <div class="game-card" data-link="memory_quest.html">Memory Quest 🧠✨</div>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', function() {
+                let link = this.getAttribute('data-link');
+                window.location.href = link;
+            });
+        });
+    </script>
+</body>
+</html>
+
+

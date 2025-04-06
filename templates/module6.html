@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Shape Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #E0F7FA;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .shape-container, .drop-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .shape {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            cursor: grab;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .circle {
+            background-color: red;
+            border-radius: 50%;
+        }
+        .square {
+            background-color: blue;
+        }
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid yellow;
+        }
+        .rectangle {
+            background-color: purple;
+            width: 120px;
+            height: 60px;
+        }
+        .pentagon {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 50px 30px 0;
+            border-color: green transparent transparent;
+            position: relative;
+        }
+        .pentagon:after {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: -30px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 60px 50px 60px;
+            border-color: transparent transparent green transparent;
+        }
+        .drop-zone {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            position: relative;
+        }
+        .drop-zone::before {
+            content: attr(data-shape);
+            position: absolute;
+            font-size: 16px;
+            color: black;
+            text-transform: capitalize;
+        }
+        .drop-zone.highlight::before {
+            display: block;
+        }
+        #completion-container {
+            display: none;
+            font-size: 24px;
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drag and Drop Shape Game</h1>
+    <div class="container">
+        <div class="shape-container">
+            <div class="shape circle" draggable="true" id="circle"></div>
+            <div class="shape square" draggable="true" id="square"></div>
+            <div class="shape triangle" draggable="true" id="triangle"></div>
+            <div class="shape rectangle" draggable="true" id="rectangle"></div>
+            <div class="shape pentagon" draggable="true" id="pentagon"></div>
+        </div>
+        <div class="drop-container">
+            <div class="drop-zone" id="circle-drop" data-shape="circle"></div>
+            <div class="drop-zone" id="square-drop" data-shape="square"></div>
+            <div class="drop-zone" id="triangle-drop" data-shape="triangle"></div>
+            <div class="drop-zone" id="rectangle-drop" data-shape="rectangle"></div>
+            <div class="drop-zone" id="pentagon-drop" data-shape="pentagon"></div>
+        </div>
+    </div>
+    <div id="completion-container">🎉 Successfully Completed! 🎉</div>
+    
+    <script>
+        const shapes = document.querySelectorAll('.shape');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let matchedShapes = 0;
+
+        shapes.forEach(shape => {
+            shape.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text', event.target.id);
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                zone.classList.add('highlight');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('highlight');
+            });
+
+            zone.addEventListener('drop', (event) => {
+                event.preventDefault();
+                zone.classList.remove('highlight');
+                const shapeId = event.dataTransfer.getData('text');
+                const shapeElement = document.getElementById(shapeId);
+
+                if (zone.dataset.shape === shapeId) {
+                    zone.appendChild(shapeElement);
+                    shapeElement.style.cursor = 'default';
+                    shapeElement.draggable = false;
+                    shapeElement.style.opacity = '1';
+                    matchedShapes++;
+                    if (matchedShapes === 5) {
+                        document.getElementById("completion-container").style.display = "block";
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

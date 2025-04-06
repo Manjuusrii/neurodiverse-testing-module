@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vowel Learning Game</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #ADD8E6; }
+        .container { width: 100%; max-width: 600px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .letter-box { width: 150px; height: 150px; display: flex; justify-content: center; align-items: center; font-size: 100px; font-weight: bold; color: #66ccff; background: #ffffff; border: 4px solid #66ccff; border-radius: 15px; margin: 20px auto; cursor: pointer; }
+        .controls { margin-top: 20px; }
+        button { padding: 12px 24px; font-size: 18px; margin: 5px; border: none; border-radius: 10px; background: #ffcc00; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: background 0.2s; }
+        button:hover { background: #ff9900; }
+        .test { display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Fun Vowel Learning 🎶</h1>
+        <p>🚀 Click the letter box to hear the vowel! 📢</p>
+        <div class="letter-box" id="letterBox" onclick="playLetter()">A</div>
+        <div class="test" id="testSection">
+            <p id="testQuestion"></p>
+            <div id="testOptions"></div>
+        </div>
+        <div class="controls">
+            <button onclick="prevLetter()" id="prevBtn">⏪ Previous</button>
+            <button onclick="nextLetter()" id="nextBtn">⏩ Next</button>
+        </div>
+    </div>
+    <script>
+        let index = 0;
+        const vowels = ["A", "E", "I", "O", "U"];
+        const letterBox = document.getElementById("letterBox");
+        const testSection = document.getElementById("testSection");
+        const testQuestion = document.getElementById("testQuestion");
+        const testOptions = document.getElementById("testOptions");
+        let testCount = 0;
+        const maxTestQuestions = 5;
+
+        function playLetter() {
+            const speech = new SpeechSynthesisUtterance(letterBox.textContent);
+            speech.rate = 0.8;
+            speech.text = letterBox.textContent;
+            speechSynthesis.speak(speech);
+        }
+
+        function updateLetter() {
+            letterBox.textContent = vowels[index];
+            testSection.style.display = "none";
+            document.getElementById("prevBtn").disabled = index === 0;
+            document.getElementById("nextBtn").disabled = index === vowels.length - 1;
+            if (index === vowels.length - 1) {
+                startTest();
+            }
+        }
+
+        function prevLetter() {
+            if (index > 0) {
+                index--;
+                updateLetter();
+            }
+        }
+
+        function nextLetter() {
+            if (index < vowels.length - 1) {
+                index++;
+                updateLetter();
+            }
+        }
+
+        function startTest() {
+            testSection.style.display = "block";
+            testCount = 0;
+            showTest();
+        }
+
+        function showTest() {
+            testSection.style.display = "block";
+            let correctAnswer = vowels[Math.floor(Math.random() * vowels.length)];
+            testQuestion.textContent = "Which vowel is this?";
+            
+            const speech = new SpeechSynthesisUtterance(correctAnswer);
+            speech.rate = 0.8;
+            speech.text = correctAnswer;
+            speechSynthesis.speak(speech);
+            
+            testOptions.innerHTML = "";
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let randomOption = vowels[Math.floor(Math.random() * vowels.length)];
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.style.background = "#66ccff";
+                button.style.color = "white";
+                button.onclick = () => checkAnswer(option === correctAnswer);
+                testOptions.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                testCount++;
+                if (testCount < maxTestQuestions) {
+                    showTest();
+                } else {
+                    alert("🎉 Great job! You successfully completed the vowel learning! 🎉");
+                }
+            } else {
+                alert("❌ Oops! Let's review the vowels again.");
+                index = 0;
+                updateLetter();
+            }
+        }
+
+        updateLetter();
+    </script>
+</body>
+</html>
+
+

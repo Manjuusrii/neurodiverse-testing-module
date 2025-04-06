@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Learning</title>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif;
+            text-align: center; 
+            background-color: #E0F7FA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #emotion-container, #quiz-container, #completion-container { 
+            display: none; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            color: #333;
+            font-weight: bold;
+            width: 50%;
+        }
+        img { 
+            width: 250px; 
+            height: 250px; 
+            cursor: pointer; 
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.1);
+        }
+        button { 
+            margin-top: 20px; 
+            padding: 15px 25px; 
+            font-size: 18px;
+            background-color: #008CBA; 
+            color: white; 
+            border: none; 
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover { 
+            background-color: #007BB5;
+        }
+        .quiz-option {
+            background-color: white;
+            color: black;
+            padding: 15px 20px;
+            margin: 10px;
+            font-size: 18px;
+            border: 2px solid #333;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .quiz-option:hover {
+            background-color: #f0f0f0;
+        }
+        h1, h2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Emotion Learning 🎉</h1>
+    <div id="emotion-container">
+        <h2><span id="emotion-title"></span></h2>
+        <img id="emotion-image" onclick="speakEmotion()">
+        <p id="emotion-description"></p>
+        <button onclick="nextEmotion()">Next</button>
+    </div>
+    
+    <div id="quiz-container">
+        <h2>Quiz: Identify the Emotion</h2>
+        <img id="quiz-image">
+        <div id="options"></div>
+        <button onclick="generateQuiz()">Next Question</button>
+    </div>
+
+    <div id="completion-container">
+        <h2 style="color: #008000;">🎉 Congratulations! You have successfully completed the module! 🎉</h2>
+    </div>
+
+    <script>
+        const emotions = [
+            { name: "Happy", image: "{{ url_for('static', filename='images/happy.jpeg') }}", description: "You feel happy when something good happens!" },
+            { name: "Sad", image: "{{ url_for('static', filename='images/sad.jpeg') }}", description: "You feel sad when something bad happens." },
+            { name: "Angry", image: "{{ url_for('static', filename='images/angry.jpeg') }}", description: "You feel angry when something is unfair." },
+            { name: "Hungry", image: "{{ url_for('static', filename='images/hungry.jpeg') }}", description: "You feel hungry when you need food." },
+            { name: "Frustrated", image: "{{ url_for('static', filename='images/frustrated.jpeg') }}", description: "You feel frustrated when things don’t work out." },
+            { name: "Crying", image: "{{ url_for('static', filename='images/crying.jpeg') }}", description: "You cry when you are very sad or hurt." }
+        ];
+
+        let currentEmotion = 0;
+        let quizCount = 0;
+        let askedQuestions = [];
+
+        function startModule() {
+            document.getElementById("emotion-container").style.display = "block";
+            showEmotion();
+        }
+
+        function showEmotion() {
+            const emotion = emotions[currentEmotion];
+            document.getElementById("emotion-title").innerText = emotion.name;
+            document.getElementById("emotion-image").src = emotion.image;
+            document.getElementById("emotion-description").innerText = emotion.description;
+            speakEmotion();
+        }
+
+        function speakEmotion() {
+            const speech = new SpeechSynthesisUtterance(emotions[currentEmotion].name);
+            window.speechSynthesis.speak(speech);
+        }
+
+        function nextEmotion() {
+            currentEmotion++;
+            if (currentEmotion < emotions.length) {
+                showEmotion();
+            } else {
+                startQuiz();
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById("emotion-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            quizCount = 0;
+            askedQuestions = [];
+            generateQuiz();
+        }
+
+        function generateQuiz() {
+            if (quizCount >= 3) {
+                document.getElementById("quiz-container").style.display = "none";
+                document.getElementById("completion-container").style.display = "block";
+                return;
+            }
+            let quizEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            document.getElementById("quiz-image").src = quizEmotion.image;
+            generateOptions(quizEmotion);
+            quizCount++;
+        }
+
+        function generateOptions(correctEmotion) {
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            let options = emotions.map(e => e.name).sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                let button = document.createElement("button");
+                button.innerText = option;
+                button.className = "quiz-option";
+                button.onclick = () => checkAnswer(option, correctEmotion);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correctEmotion) {
+            if (selected === correctEmotion.name) {
+                generateQuiz();
+            } else {
+                alert("Incorrect answer. Redirecting to the learning module.");
+                document.getElementById("quiz-container").style.display = "none";
+                document.getElementById("emotion-container").style.display = "block";
+                currentEmotion = 0;
+                showEmotion();
+            }
+        }
+
+        startModule();
+    </script>
+</body>
+</html>
+

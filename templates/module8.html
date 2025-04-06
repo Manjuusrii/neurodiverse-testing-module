@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhyming Game</title>
+    <style>
+        body { font-family: 'Comic Sans MS', cursive, sans-serif; text-align: center; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #ADD8E6; }
+        .container { width: 100%; max-width: 600px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .word-box { width: 200px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 30px; font-weight: bold; color: #66ccff; background: #ffffff; border: 4px solid #66ccff; border-radius: 15px; margin: 20px auto; }
+        .controls { margin-top: 20px; }
+        button { padding: 12px 24px; font-size: 18px; margin: 5px; border: none; border-radius: 10px; background: #ffcc00; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+        button:hover { background: #ff9900; }
+        .options { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .option { padding: 10px 20px; margin: 5px; border: none; border-radius: 10px; background: #66ccff; color: white; font-size: 18px; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+        .option:hover { background: #3399ff; }
+    </style>
+</head>
+<body>
+    <div class="container" id="game">
+        <h1>🎶 Rhyming Game 🎵</h1>
+        <p>Find a word that rhymes with:</p>
+        <div class="word-box" id="word"></div>
+        <p>Time left: <span id="timer">10</span>s</p>
+        <div class="options" id="options"></div>
+        <p id="score">Score: 0</p>
+    </div>
+    
+    <div class="container" id="quiz" style="display: none;">
+        <h1>🎓 Rhyming Quiz 🎤</h1>
+        <p id="quiz-question"></p>
+        <div class="options" id="quiz-options"></div>
+        <p id="quiz-score">Quiz Score: 0</p>
+    </div>
+
+    <script>
+        const words = ["cat", "dog", "sun", "moon", "tree", "star", "light", "play", "run", "fun"];
+        const rhymingPairs = {
+            "cat": "bat", "dog": "log", "sun": "fun", "moon": "soon", "tree": "free", 
+            "star": "car", "light": "night", "play": "day", "run": "gun", "fun": "bun"
+        };
+        let currentWord = words[Math.floor(Math.random() * words.length)];
+        let score = 0;
+        let quizScore = 0;
+        let timeLeft = 10;
+        let timer;
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").textContent = timeLeft;
+                } else {
+                    clearInterval(timer);
+                    startQuiz();
+                }
+            }, 1000);
+        }
+
+        function generateOptions() {
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            let correctAnswer = rhymingPairs[currentWord];
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let randomWord = words[Math.floor(Math.random() * words.length)];
+                if (!options.includes(randomWord) && randomWord !== currentWord) {
+                    options.push(randomWord);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                let btn = document.createElement("button");
+                btn.textContent = option;
+                btn.className = "option";
+                btn.onclick = () => checkRhyme(option === correctAnswer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkRhyme(isCorrect) {
+            if (isCorrect) {
+                score++;
+                document.getElementById("score").textContent = "Score: " + score;
+            }
+            if (score >= 10) {
+                startQuiz();
+                return;
+            }
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById("word").textContent = currentWord;
+            generateOptions();
+            timeLeft = 10;
+        }
+
+        function startQuiz() {
+            document.getElementById("game").style.display = "none";
+            document.getElementById("quiz").style.display = "block";
+            generateQuizQuestion();
+        }
+
+        function generateQuizQuestion() {
+            const quizContainer = document.getElementById("quiz-options");
+            quizContainer.innerHTML = "";
+            let quizWord = words[Math.floor(Math.random() * words.length)];
+            let correctAnswer = rhymingPairs[quizWord];
+            document.getElementById("quiz-question").textContent = `Which word rhymes with "${quizWord}"?`;
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let randomWord = words[Math.floor(Math.random() * words.length)];
+                if (!options.includes(randomWord)) {
+                    options.push(randomWord);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(option => {
+                let btn = document.createElement("button");
+                btn.textContent = option;
+                btn.className = "option";
+                btn.onclick = () => checkQuizAnswer(option === correctAnswer);
+                quizContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(isCorrect) {
+            if (isCorrect) {
+                quizScore++;
+                document.getElementById("quiz-score").textContent = "Quiz Score: " + quizScore;
+                if (quizScore >= 3) {
+                    alert("🎉 Successfully Completed! 🎉");
+                } else {
+                    generateQuizQuestion();
+                }
+            } else {
+                alert("❌ Oops! Let's review again.");
+                location.reload();
+            }
+        }
+
+        document.getElementById("word").textContent = currentWord;
+        generateOptions();
+        startTimer();
+    </script>
+</body>
+</html>
